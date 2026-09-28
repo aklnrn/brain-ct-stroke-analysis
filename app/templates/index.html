@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <main class="container">
+        <section class="card">
+            <h1>{{ title }}</h1>
+            <p class="subtitle">
+                Загрузите PNG-изображение и соответствующий DICOM-файл. Система выполнит
+                многоэтапный анализ снимка и отобразит результат.
+            </p>
+
+            <form action="/predict" method="post" enctype="multipart/form-data" class="form-block" id="analysis-form">
+                <label for="png_file">PNG-изображение</label>
+                <input type="file" id="png_file" name="png_file" accept=".png" required>
+
+                <label for="dicom_file">DICOM-файл</label>
+                <input type="file" id="dicom_file" name="dicom_file" accept=".dcm,.dicom" required>
+
+                <div class="optional-section">
+                    <h2>Дополнительное сравнение с эталонной маской</h2>
+                    <p class="optional-text">
+                        Если у вас есть эталонная разметка очага поражения, вы можете дополнительно
+                        загрузить PNG-маску для сравнения предсказания модели с исходной разметкой.
+                        Если эталонная маска отсутствует, этот этап можно пропустить: сервис выполнит
+                        анализ снимка в стандартном режиме.
+                    </p>
+
+                    <label for="mask_file">PNG-маска очага поражения (необязательно)</label>
+                    <input type="file" id="mask_file" name="mask_file" accept=".png" disabled>
+                </div>
+
+                <div id="form-validation-message" class="form-validation-message" hidden></div>
+
+                <button type="submit" id="submit-button">Проанализировать снимок</button>
+            </form>
+        </section>
+    </main>
+
+    <script>
+        const pngInput = document.getElementById("png_file");
+        const dicomInput = document.getElementById("dicom_file");
+        const maskInput = document.getElementById("mask_file");
+        const submitButton = document.getElementById("submit-button");
+        const validationMessage = document.getElementById("form-validation-message");
+
+        function getStem(filename) {
+            if (!filename) return "";
+            const parts = filename.split(".");
+            if (parts.length === 1) return filename;
+            parts.pop();
+            return parts.join(".");
+        }
+
+        function validateFileNames() {
+            const pngName = pngInput.files[0]?.name || "";
+            const dicomName = dicomInput.files[0]?.name || "";
+            const maskName = maskInput.files[0]?.name || "";
+
+            if (!pngName || !dicomName) {
+                submitButton.disabled = false;
+                maskInput.disabled = true;
+
+                validationMessage.hidden = true;
+                validationMessage.textContent = "";
+                return;
+            }
+
+            const pngStem = getStem(pngName);
+            const dicomStem = getStem(dicomName);
+
+            if (pngStem !== dicomStem) {
+                submitButton.disabled = true;
+                maskInput.disabled = true;
+
+                validationMessage.hidden = false;
+                validationMessage.textContent =
+                    "Ошибка загрузки: имена PNG и DICOM файла должны совпадать.";
+                return;
+            }
+
+            maskInput.disabled = false;
+
+            if (maskName) {
+                const maskStem = getStem(maskName);
+
+                if (maskStem !== pngStem) {
+                    submitButton.disabled = true;
+
+                    validationMessage.hidden = false;
+                    validationMessage.textContent =
+                        "Имя эталонной маски должно совпадать с PNG и DICOM.";
+                    return;
+                }
+            }
+
+            submitButton.disabled = false;
+            validationMessage.hidden = true;
+            validationMessage.textContent = "";
+        }
+
+        pngInput.addEventListener("change", validateFileNames);
+        dicomInput.addEventListener("change", validateFileNames);
+        maskInput.addEventListener("change", validateFileNames);
+    </script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+# Python
+
+**pycache**/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+
+# Virtual environments
+
+.venv/
+venv/
+env/
+ENV/
+
+# macOS
+
+.DS_Store
+
+# IDE
+
+.idea/
+.vscode/
+
+# Logs
+
+*.log
+
+# Test / cache files
+
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Jupyter
+
+.ipynb_checkpoints/
+
+# Local uploaded files
+
+app/uploads/
+
+# Generated inference results
+
+app/static/generated/
+
+# Local model weights
+
+models/**/*.pth
+models/**/*.pt
+models/**/*.ckpt
+models/**/*.safetensors
+
+# Local / temporary files
+
+*.tmp
+*.temp
+
+# Environment variables / secrets
+
+.env
+.env.*
+
+# Old local environment dump
+
+old_requirements-serving.txt

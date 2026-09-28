@@ -1,0 +1,7 @@
+{
+    "best_threshold": 0.7,
+    "positive_dice": 0.8059688141181648,
+    "positive_iou": 0.714741840696123,
+    "negative_fp_rate": 0.09491525423728814,
+    "bleeding_recall": 0.9771689497716894
+}

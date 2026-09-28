@@ -1,0 +1,6 @@
+{
+    "seg_threshold": 0.3,
+    "min_positive_pixels": 48,
+    "coarse_dilation_kernel": 15,
+    "note": "fallback thresholds"
+}

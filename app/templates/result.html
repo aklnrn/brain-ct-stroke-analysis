@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+    .pdf-page-break{
+        page-break-before: always;
+        break-before: page;
+        padding-top: 30px;
+        margin-top: 20px;
+    }
+
+    .pdf-hide{
+        display:none !important;
+    }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <section class="card">
+            <nav class="top-nav" id="pdf-hide">
+                <a href="/">Новый анализ</a>
+                <a href="#" onclick="downloadPDF()">Скачать результаты в PDF</a>
+            </nav>
+
+            <h1>Результат анализа</h1>
+
+            {% if result.error_message %}
+                <div class="error-block">
+                    <p><strong>Ошибка обработки данных.</strong></p>
+                    <p>{{ result.error_message }}</p>
+                </div>
+            {% else %}
+                <div class="result-block">
+                    <p><strong>Итоговое заключение:</strong> {{ result.conclusion }}</p>
+                    <p><strong>Очаг поражения:</strong> {{ result.lesion_status }}</p>
+                    <p><strong>Уверенность итогового заключения:</strong> {{ result.confidence }}</p>
+                    <p><strong>Решение подтверждено:</strong> {{ result.confirmed_by }}</p>
+                </div>
+
+                <div class="image-grid">
+                    <div class="image-card">
+                        <h2>Исходный снимок</h2>
+                        <img src="{{ result.original_image_url }}" alt="Исходный снимок" class="result-image">
+                    </div>
+
+                    <div class="image-card">
+                        <h2>Предсказанная область поражения</h2>
+                        <img src="{{ result.prediction_overlay_url }}" alt="Предсказанная область поражения" class="result-image">
+                    </div>
+                </div>
+
+                {% if result.has_mask_comparison %}
+                    <div class="comparison-block">
+                        <h2>Сравнение с эталонной маской</h2>
+                        <p><strong>Степень совпадения масок:</strong> {{ result.comparison_status }}</p>
+                        <p>
+                            <strong>Коэффициент Dice:</strong> {{ result.dice }}
+                            <span class="metric-tooltip" tabindex="0">
+                                ⓘ
+                                <span class="metric-tooltip-text">
+                                    Коэффициент Dice показывает степень совпадения предсказанной маски с эталонной.
+                                    Он учитывает, насколько хорошо области наложились друг на друга.
+                                    Чем ближе значение к 1, тем лучше совпадение.
+                                </span>
+                            </span>
+                        </p>
+
+                        <p>
+                            <strong>Коэффициент IoU:</strong> {{ result.iou }}
+                            <span class="metric-tooltip" tabindex="0">
+                                ⓘ
+                                <span class="metric-tooltip-text">
+                                    Коэффициент IoU показывает долю пересечения относительно общей области, 
+                                    в которой предсказанная и эталонная маски совпадают. 
+                                    Чем ближе значение к 1, тем точнее выделен очаг поражения.
+                                </span>
+                            </span>
+                        </p>
+
+                        <p><strong>Пикселей в эталонной маске:</strong> {{ result.gt_pixels }}</p>
+                        <p><strong>Пикселей в предсказанной маске:</strong> {{ result.pred_pixels }}</p>
+                    </div>
+
+                    <div class="image-grid pdf-page-break">
+                        <div class="image-card">
+                            <h2>Эталонная маска на КТ</h2>
+                            <img src="{{ result.gt_overlay_url }}" alt="Эталонная маска на КТ" class="result-image">
+                        </div>
+
+                        <div class="image-card">
+                            <h2>Сравнение эталонной и предсказанной масок</h2>
+                            <img src="{{ result.comparison_overlay_url }}" alt="Сравнение эталонной и предсказанной масок" class="result-image">
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+
+            <p class="disclaimer">
+                {{ result.disclaimer }}
+            </p>
+        </section>
+    </main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<script>
+function downloadPDF() {
+
+    const nav = document.getElementById("pdf-hide");
+    nav.classList.add("pdf-hide");
+
+    const element = document.querySelector(".card");
+
+    const opt = {
+        margin: 0.35,
+        filename: 'результаты_анализа.pdf',
+        image: { type: 'jpeg', quality: 1 },
+        html2canvas: {
+            scale: 2,
+            useCORS: true
+        },
+        jsPDF: {
+            unit: 'in',
+            format: 'a4',
+            orientation: 'portrait'
+        },
+        pagebreak: {
+            mode: ['css', 'legacy']
+        }
+    };
+
+    html2pdf()
+        .set(opt)
+        .from(element)
+        .save()
+        .then(() => {
+            nav.classList.remove("pdf-hide");
+        });
+}
+</script>
+</body>
+</html>

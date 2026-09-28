@@ -1,0 +1,7 @@
+{
+    "report_threshold": 0.58,
+    "route_threshold": 0.08700000000000001,
+    "target_route_recall": 0.99,
+    "min_report_specificity": 0.9,
+    "validation_auc": 0.996973274931759
+}

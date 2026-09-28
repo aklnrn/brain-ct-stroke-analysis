@@ -1,0 +1,11 @@
+{
+    "seg_threshold": 0.6,
+    "presence_threshold": 0.65,
+    "min_positive_pixels": 16,
+    "positive_dice": 0.7956756184587349,
+    "positive_iou": 0.6890582528823421,
+    "negative_fp_rate": 0.012681159420289856,
+    "ischemia_recall": 0.9778761061946902,
+    "ischemia_precision": 0.9404255319148936,
+    "note": "threshold search completed successfully"
+}
